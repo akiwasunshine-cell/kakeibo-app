@@ -4,9 +4,25 @@
 
 ## プロジェクト概要
 
-家計簿アプリ（kakeibo-app）。収入・支出を記録し、月ごとの集計やカテゴリ別の内訳を確認できるようにする。
+レシート読み込み家計簿アプリ（kakeibo-app）。レシート画像を Claude API で読み取り、商品・金額・日付をカテゴリ別に集計してグラフ表示する。
 
-> 技術スタック・ディレクトリ構成・ビルド/テストコマンドは、決まり次第このファイルに追記すること。
+## 技術スタック・構成
+
+npm workspaces のモノレポ構成。
+
+- `server/` … Node.js + Express のバックエンド。`POST /api/receipts/analyze` で画像を受け取り、Claude API（`@anthropic-ai/sdk`、モデル `claude-haiku-5-5`）で読み取る。応答は Zod スキーマによる構造化出力（`messages.parse` + `zodOutputFormat`）。
+- `client/` … React + Vite のフロントエンド。Chart.js（react-chartjs-2）で円グラフ・棒グラフを表示。データはローカルストレージ（キー `kakeibo-receipts`）に保存。
+- カテゴリ一覧は `server/index.js` と `client/src/categories.js` の両方に定義しているため、変更時は両方を揃えること。
+- APIキーはブラウザに渡さない。Claude API の呼び出しは必ずサーバー経由にする。
+
+## コマンド
+
+- `npm install` … 依存パッケージのインストール
+- `npm run dev` … サーバー（:3001）とクライアント（:5173）を同時起動。`/api` は Vite のプロキシでサーバーへ転送
+- `npm run build` … クライアントを `client/dist` にビルド
+- `npm start` … サーバーを起動し、ビルド済みクライアントも配信
+
+APIキーはプロジェクト直下の `.env`（`.env.example` をコピー）に `ANTHROPIC_API_KEY` として設定する。
 
 ## 開発方針
 

@@ -1,0 +1,15 @@
+# 依存パッケージ
+node_modules/
+
+# ビルド成果物
+client/dist/
+
+# 環境変数（APIキーを含むため絶対にコミットしない）
+.env
+.env.*
+!.env.example
+
+# ログ・OS/エディタのファイル
+*.log
+.DS_Store
+Thumbs.db
