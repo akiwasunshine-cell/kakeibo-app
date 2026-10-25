@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { CATEGORIES } from "../categories.js";
 import { formatYen, resizeImage, todayString } from "../utils.js";
+import { receiptTotal, validateReceipt } from "../validation.js";
 
 // レシート画像のアップロード → 読み取り → 内容確認 → 登録 を行うコンポーネント
-export default function ReceiptUploader({ onSave }) {
+export default function ReceiptUploader({ receipts, onSave }) {
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -87,6 +88,13 @@ export default function ReceiptUploader({ onSave }) {
   }
 
   function handleSave() {
+    // 重複の可能性がある場合は、登録してよいか確認する
+    if (
+      warnings.some((w) => w.type === "duplicate") &&
+      !confirm("同じ日付・合計金額のレシートが既にあります。このまま登録しますか？")
+    ) {
+      return;
+    }
     onSave({
       id: crypto.randomUUID(),
       store: draft.store.trim(),
@@ -99,7 +107,9 @@ export default function ReceiptUploader({ onSave }) {
     reset();
   }
 
-  const itemsTotal = draft ? draft.items.reduce((sum, i) => sum + (Number(i.price) || 0), 0) : 0;
+  const itemsTotal = draft ? receiptTotal(draft.items) : 0;
+  // 入力内容が変わるたびに検証し直す
+  const warnings = draft ? validateReceipt(draft, receipts) : [];
 
   return (
     <section className="card">
@@ -178,7 +188,7 @@ export default function ReceiptUploader({ onSave }) {
                         <td>
                           <input
                             type="number"
-                            className="price-input"
+                            className={`price-input ${Number(item.price) < 0 ? "negative" : ""}`}
                             value={item.price}
                             onChange={(e) => updateItem(index, "price", e.target.value)}
                           />
@@ -218,6 +228,14 @@ export default function ReceiptUploader({ onSave }) {
                     </span>
                   )}
                 </p>
+
+                {warnings.length > 0 && (
+                  <ul className="warnings">
+                    {warnings.map((w) => (
+                      <li key={w.type}>⚠ {w.message}</li>
+                    ))}
+                  </ul>
+                )}
 
                 <div className="actions">
                   <button onClick={handleSave} disabled={draft.items.length === 0}>

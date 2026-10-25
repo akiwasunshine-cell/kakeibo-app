@@ -229,6 +229,26 @@ button.icon {
   font-size: 0.9rem;
 }
 
+/* 検証の警告 */
+.warnings {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--warn);
+  border-radius: 8px;
+  color: var(--warn);
+  font-size: 0.9rem;
+}
+
+.warnings li + li {
+  margin-top: 6px;
+}
+
+.price-input.negative {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+
 /* 集計 */
 .summary-header {
   display: flex;

@@ -83,7 +83,7 @@ export default function App() {
         <h1>🧾 レシート家計簿</h1>
       </header>
 
-      <ReceiptUploader onSave={addReceipt} />
+      <ReceiptUploader receipts={receipts} onSave={addReceipt} />
 
       <section className="card">
         <div className="summary-header">
